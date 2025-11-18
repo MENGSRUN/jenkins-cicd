@@ -11,10 +11,10 @@ pipeline {
 
     stages {
 
-        stage('Clean Workspace') {
+        stage('Checkout') {
             steps {
-                // Clean old workspace to avoid cached packages
-                cleanWs()
+                // Checkout latest code
+                checkout scm
             }
         }
 
@@ -23,7 +23,7 @@ pipeline {
                 sh '''
                 cd myapp
 
-                # Remove old venv if it exists
+                # Remove old venv only
                 rm -rf venv
 
                 # Create fresh virtual environment
@@ -32,10 +32,10 @@ pipeline {
                 # Upgrade pip
                 venv/bin/pip install --upgrade pip
 
-                # Force uninstall any old Fire package in venv (if any)
+                # Force uninstall any old Fire package in venv
                 venv/bin/pip uninstall -y fire || true
 
-                # Force reinstall dependencies without cache
+                # Force reinstall dependencies
                 venv/bin/pip install --no-cache-dir --upgrade --force-reinstall fire==0.6.0 six termcolor
                 '''
             }
@@ -45,22 +45,15 @@ pipeline {
             steps {
                 sh '''
                 cd myapp
-
-                # Verify Fire version
                 venv/bin/python3 -m pip show fire
-
-                # Should output: Version: 0.6.0
                 '''
             }
         }
 
         stage('Test') {
             steps {
-                echo "Running Python scripts..."
                 sh '''
                 cd myapp
-
-                # Run Python scripts using venv interpreter directly
                 venv/bin/python3 hello.py
                 venv/bin/python3 hello.py --name=SRUNNOOBIE
                 '''
@@ -69,7 +62,6 @@ pipeline {
 
         stage('Deliver') {
             steps {
-                echo 'Delivering...'
                 sh '''
                 echo "Doing delivery tasks..."
                 '''
@@ -79,8 +71,8 @@ pipeline {
 
     post {
         always {
-            echo "Cleaning workspace after build..."
-            cleanWs()
+            echo "Cleaning old virtual environment only..."
+            sh 'rm -rf myapp/venv'
         }
     }
 }
