@@ -9,10 +9,6 @@ pipeline {
         pollSCM '* * * * *'
     }
 
-    environment {
-        PYTHON_BIN = "python3.11"  // Use Python 3.11
-    }
-
     stages {
 
         stage('Checkout') {
@@ -27,16 +23,19 @@ pipeline {
                 sh '''
                 cd myapp
 
-                # Remove old venv if it exists
+                # Remove old venv only
                 rm -rf venv
 
-                # Create fresh virtual environment using Python 3.11
-                ${PYTHON_BIN} -m venv venv
+                # Create fresh virtual environment
+                python3 -m venv venv
 
-                # Upgrade pip in the venv
+                # Upgrade pip
                 venv/bin/pip install --upgrade pip
 
-                # Force reinstall dependencies (Fire 0.6.0 compatible)
+                # Force uninstall any old Fire package in venv
+                venv/bin/pip uninstall -y fire || true
+
+                # Force reinstall dependencies
                 venv/bin/pip install --no-cache-dir --upgrade --force-reinstall fire==0.6.0 six termcolor
                 '''
             }
@@ -46,8 +45,7 @@ pipeline {
             steps {
                 sh '''
                 cd myapp
-                echo "Installed packages in venv:"
-                venv/bin/pip list
+                venv/bin/python3 -m pip show fire
                 '''
             }
         }
@@ -56,10 +54,8 @@ pipeline {
             steps {
                 sh '''
                 cd myapp
-
-                # Run Python scripts using venv interpreter
-                venv/bin/python hello.py
-                venv/bin/python hello.py --name=SRUNNOOBIE
+                venv/bin/python3 hello.py
+                venv/bin/python3 hello.py --name=SRUNNOOBIE
                 '''
             }
         }
@@ -75,7 +71,7 @@ pipeline {
 
     post {
         always {
-            echo "Cleaning old virtual environment..."
+            echo "Cleaning old virtual environment only..."
             sh 'rm -rf myapp/venv'
         }
     }
