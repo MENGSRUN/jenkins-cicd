@@ -39,11 +39,9 @@ pipeline {
                 sh '''
                 cd myapp
 
-                # Activate the virtual environment for TEST stage
-                . venv/bin/activate
-
-                python3 hello.py
-                python3 hello.py --name=Brad
+                # run without activate
+                venv/bin/python3 hello.py
+                venv/bin/python3 hello.py --name=Brad
                 '''
             }
         }
