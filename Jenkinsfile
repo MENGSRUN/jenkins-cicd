@@ -8,6 +8,13 @@ pipeline {
         pollSCM '* * * * *'
     }
     stages {
+
+        stage('Cleanup') {
+            steps {
+                echo "Cleaning workspace..."
+                deleteDir()
+            }
+        }
         stage('Build') {
             steps {
                 echo "Building.."
