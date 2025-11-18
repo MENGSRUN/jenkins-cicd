@@ -9,25 +9,21 @@ pipeline {
     }
     stages {
 
-        stage('Cleanup') {
-            steps {
-                echo "Cleaning workspace..."
-                deleteDir()
-            }
-        }
         stage('Build') {
             steps {
                 echo "Building.."
                 sh '''
                 cd myapp
 
-                # Create virtual environment
+                # Remove old virtual environment (only venv folder)
+                rm -rf venv
+
+                # Create fresh venv
                 python3 -m venv venv
 
-                # Activate venv
+                # Activate venv and install
                 . venv/bin/activate
-
-                # Install dependencies
+                
                 pip install --upgrade pip
                 pip install -r requirements.txt
                 '''
