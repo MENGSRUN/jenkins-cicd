@@ -13,14 +13,6 @@ pipeline {
                 echo "Building.."
                 sh '''
                 cd myapp
-
-                # Create virtual environment
-                python3 -m venv venv
-
-                # Activate venv
-                . venv/bin/activate
-
-                # Install dependencies
                 pip install --upgrade pip
                 pip install -r requirements.txt
                 '''
