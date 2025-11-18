@@ -14,32 +14,26 @@ pipeline {
                 sh '''
                 cd myapp
 
-                # remove old venv only
-                if [ -d "venv" ]; then
-                    rm -rf venv
-                fi
+                # remove old venv
+                rm -rf venv
 
-                # create fresh venv
+                # create new venv
                 python3 -m venv venv
 
-                # activate venv
-                . venv/bin/activate
+                # force upgrade pip
+                venv/bin/pip install --upgrade pip
 
-                # upgrade pip
-                pip install --upgrade pip
-
-                # install dependencies
-                pip install -r requirements.txt
+                # force reinstall all dependencies
+                venv/bin/pip install --upgrade --force-reinstall -r requirements.txt
                 '''
             }
         }
         stage('Test') {
             steps {
-                echo "Testing.."
                 sh '''
                 cd myapp
 
-                # run without activate
+                # run python scripts using venv interpreter
                 venv/bin/python3 hello.py
                 venv/bin/python3 hello.py --name=Brad
                 '''
