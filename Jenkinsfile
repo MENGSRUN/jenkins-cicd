@@ -11,13 +11,6 @@ pipeline {
 
     stages {
 
-        stage('Clean Workspace') {
-            steps {
-                // Ensure no old venv or cache remains
-                cleanWs()
-            }
-        }
-
         stage('Build') {
             steps {
                 sh '''
